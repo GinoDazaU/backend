@@ -1,8 +1,8 @@
 {
     "info": {
-        "_postman_id": "8c5b8e92-e421-4f15-9c98-12ba5c8aef9d",
-        "name": "Workpool API - Autenticación y Espacios",
-        "description": "Colección de Postman para el backend de Workpool que cubre todo el ciclo de Autenticación, Gestión de Espacios, Planes de Precios, Bloqueos y Permisos Dinámicos.",
+        "_postman_id": "workpool-api-complete-2026",
+        "name": "Workpool API - Completa",
+        "description": "Colección completa del backend Workpool: Autenticación, Espacios, Planes, Bloqueos, Permisos, Reservas, Pagos y Reprogramación.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "item": [
@@ -17,25 +17,14 @@
                         "body": {
                             "mode": "raw",
                             "raw": "{\n    \"firstName\": \"Gino\",\n    \"lastName\": \"Daza\",\n    \"email\": \"gino.test@gmail.com\",\n    \"phoneNumber\": \"987654321\",\n    \"dni\": \"12345678\",\n    \"birthDate\": \"1995-06-15\",\n    \"password\": \"Password1234\",\n    \"confirmPassword\": \"Password1234\",\n    \"termsAccepted\": true\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "options": { "raw": { "language": "json" } }
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/auth/register",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "auth",
-                                "register"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "auth", "register"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
                     "name": "Verificar Correo",
@@ -43,41 +32,26 @@
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/auth/verify-email?token=AQUÍ_VA_EL_UUID_DE_LA_BD",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "auth",
-                                "verify-email"
-                            ],
-                            "query": [
-                                {
-                                    "key": "token",
-                                    "value": "AQUÍ_VA_EL_UUID_DE_LA_BD",
-                                    "description": "Token copiado directo de tu base de datos o consola para simular la verificación."
-                                }
-                            ]
+                            "raw": "{{baseUrl}}/api/auth/verify-email?token={{verifyToken}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "auth", "verify-email"],
+                            "query": [{ "key": "token", "value": "{{verifyToken}}", "description": "UUID de verificación (BD o correo)" }]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Iniciar Sesión (Login)",
+                    "name": "Login",
                     "event": [
                         {
                             "listen": "test",
                             "script": {
                                 "exec": [
-                                    "pm.test(\"Login Exitoso\", function () {",
-                                    "    var jsonData = pm.response.json();",
-                                    "    pm.expect(jsonData.success).to.eql(true);",
-                                    "    if(jsonData.data && jsonData.data.token) {",
-                                    "        pm.environment.set(\"token\", jsonData.data.token);",
-                                    "        console.log(\"Token guardado automáticamente en el entorno.\");",
-                                    "    }",
-                                    "});"
+                                    "var jsonData = pm.response.json();",
+                                    "if(jsonData.success && jsonData.data && jsonData.data.token) {",
+                                    "    pm.collectionVariables.set('token', jsonData.data.token);",
+                                    "    pm.collectionVariables.set('userId', jsonData.data.userId);",
+                                    "    console.log('Token y userId guardados.');",
+                                    "}"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -89,25 +63,14 @@
                         "body": {
                             "mode": "raw",
                             "raw": "{\n    \"email\": \"gino.test@gmail.com\",\n    \"password\": \"Password1234\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "options": { "raw": { "language": "json" } }
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/auth/login",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "auth",
-                                "login"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "auth", "login"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
                     "name": "Olvidé mi Contraseña",
@@ -117,25 +80,14 @@
                         "body": {
                             "mode": "raw",
                             "raw": "{\n    \"email\": \"gino.test@gmail.com\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "options": { "raw": { "language": "json" } }
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/auth/forgot-password",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "auth",
-                                "forgot-password"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "auth", "forgot-password"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
                     "name": "Restablecer Contraseña",
@@ -144,26 +96,15 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"token\": \"AQUÍ_VA_EL_TOKEN_RESET_DE_BD\",\n    \"password\": \"NewPassword1234\",\n    \"confirmPassword\": \"NewPassword1234\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "raw": "{\n    \"token\": \"{{resetToken}}\",\n    \"password\": \"NewPassword1234\",\n    \"confirmPassword\": \"NewPassword1234\"\n}",
+                            "options": { "raw": { "language": "json" } }
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/auth/reset-password",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "auth",
-                                "reset-password"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "auth", "reset-password"]
                         }
-                    },
-                    "response": []
+                    }
                 }
             ]
         },
@@ -171,417 +112,303 @@
             "name": "2. Espacios (Catálogo Público)",
             "item": [
                 {
-                    "name": "Listar Tipos de Sala (Kinds)",
+                    "name": "Listar Tipos de Sala",
                     "request": {
                         "method": "GET",
                         "header": [],
                         "url": {
                             "raw": "{{baseUrl}}/api/offices/kinds",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "kinds"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "kinds"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Buscar Salas Disponibles con Filtros",
+                    "name": "Buscar Salas Disponibles",
                     "request": {
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/offices/available?kindId=a0000000-0000-0000-0000-000000000001&minCapacity=5",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "available"
-                            ],
+                            "raw": "{{baseUrl}}/api/offices/available?kindId={{officeKindId}}&minCapacity=5",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "available"],
                             "query": [
-                                {
-                                    "key": "kindId",
-                                    "value": "a0000000-0000-0000-0000-000000000001",
-                                    "description": "ID del tipo de oficina mapeado."
-                                },
-                                {
-                                    "key": "minCapacity",
-                                    "value": "5",
-                                    "description": "Aforo mínimo requerido."
-                                }
+                                { "key": "kindId", "value": "{{officeKindId}}" },
+                                { "key": "minCapacity", "value": "5" }
                             ]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Obtener Detalle de Sala por ID",
+                    "name": "Detalle de Sala",
                     "request": {
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/offices/{{lastOfficeId}}",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "{{lastOfficeId}}"
-                            ]
+                            "raw": "{{baseUrl}}/api/offices/{{officeId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "{{officeId}}"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Obtener Planes de Precios por Tipo",
+                    "name": "Planes de Precios por Tipo",
                     "request": {
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/offices/plans?kindId=a0000000-0000-0000-0000-000000000001",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "plans"
-                            ],
-                            "query": [
-                                {
-                                    "key": "kindId",
-                                    "value": "a0000000-0000-0000-0000-000000000001"
-                                }
-                            ]
+                            "raw": "{{baseUrl}}/api/offices/plans?kindId={{officeKindId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "plans"],
+                            "query": [{ "key": "kindId", "value": "{{officeKindId}}" }]
                         }
-                    },
-                    "response": []
+                    }
                 }
             ]
         },
         {
-            "name": "3. Espacios (Administración)",
+            "name": "3. Espacios (Admin)",
             "item": [
                 {
-                    "name": "Crear Espacio / Sala",
+                    "name": "Crear Espacio",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if(jsonData.data && jsonData.data.id) {",
+                                    "    pm.collectionVariables.set('officeId', jsonData.data.id);",
+                                    "    pm.collectionVariables.set('officeKindId', jsonData.data.officeKindId);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"name\": \"Sala Creativa Beta\",\n    \"description\": \"Sala equipada con pizarra inteligente y proyector.\",\n    \"capacity\": 8,\n    \"officeKindId\": \"a0000000-0000-0000-0000-000000000001\",\n    \"conditions\": \"No se permiten alimentos dentro de la sala.\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "raw": "{\n    \"name\": \"Sala Creativa Beta\",\n    \"description\": \"Sala equipada con pizarra inteligente.\",\n    \"capacity\": 8,\n    \"officeKindId\": \"{{officeKindId}}\",\n    \"conditions\": \"No se permiten alimentos.\"\n}",
+                            "options": { "raw": { "language": "json" } }
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/offices/admin",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Actualizar Espacio / Sala",
+                    "name": "Actualizar Espacio",
                     "request": {
                         "method": "PUT",
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"name\": \"Sala Creativa Beta v2\",\n    \"description\": \"Sala optimizada con aire acondicionado.\",\n    \"capacity\": 10,\n    \"officeKindId\": \"a0000000-0000-0000-0000-000000000001\",\n    \"conditions\": \"Uso exclusivo con reserva confirmada.\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "raw": "{\n    \"name\": \"Sala Creativa Beta v2\",\n    \"description\": \"Sala con aire acondicionado.\",\n    \"capacity\": 10,\n    \"officeKindId\": \"{{officeKindId}}\",\n    \"conditions\": \"Uso con reserva confirmada.\"\n}",
+                            "options": { "raw": { "language": "json" } }
                         },
                         "url": {
-                            "raw": "{{baseUrl}}/api/offices/admin/{{lastOfficeId}}",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "{{lastOfficeId}}"
-                            ]
+                            "raw": "{{baseUrl}}/api/offices/admin/{{officeId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "{{officeId}}"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Listar Todos los Espacios (Admin)",
+                    "name": "Listar Todos (Admin)",
                     "request": {
                         "method": "GET",
                         "header": [],
                         "url": {
                             "raw": "{{baseUrl}}/api/offices/admin/all",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "all"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "all"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Crear Plan de Precios",
+                    "name": "Desactivar Espacio",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/{{officeId}}/disable",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "{{officeId}}", "disable"]
+                        }
+                    }
+                },
+                {
+                    "name": "Eliminar Espacio",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/{{officeId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "{{officeId}}"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Plan",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if(jsonData.data && jsonData.data.id) {",
+                                    "    pm.collectionVariables.set('planId', jsonData.data.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"officeKindId\": \"a0000000-0000-0000-0000-000000000001\",\n    \"pricePerHour\": 35.00,\n    \"planDurationHours\": 4\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "raw": "{\n    \"officeKindId\": \"{{officeKindId}}\",\n    \"pricePerHour\": 25.00,\n    \"planDurationHours\": 4\n}",
+                            "options": { "raw": { "language": "json" } }
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/offices/admin/plans",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "plans"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "plans"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Actualizar Plan de Precios",
+                    "name": "Actualizar Plan",
                     "request": {
                         "method": "PUT",
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"officeKindId\": \"a0000000-0000-0000-0000-000000000001\",\n    \"pricePerHour\": 40.00,\n    \"planDurationHours\": 4\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "raw": "{\n    \"officeKindId\": \"{{officeKindId}}\",\n    \"pricePerHour\": 30.00,\n    \"planDurationHours\": 4\n}",
+                            "options": { "raw": { "language": "json" } }
                         },
                         "url": {
-                            "raw": "{{baseUrl}}/api/offices/admin/plans/{{lastPlanId}}",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "plans",
-                                "{{lastPlanId}}"
-                            ]
+                            "raw": "{{baseUrl}}/api/offices/admin/plans/{{planId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "plans", "{{planId}}"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Listar Todos los Planes (Admin)",
+                    "name": "Listar Planes (Admin)",
                     "request": {
                         "method": "GET",
                         "header": [],
                         "url": {
                             "raw": "{{baseUrl}}/api/offices/admin/plans",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "plans"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "plans"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Desactivar Plan de Precios",
+                    "name": "Desactivar Plan",
                     "request": {
                         "method": "PATCH",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/offices/admin/plans/{{lastPlanId}}/disable",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "plans",
-                                "{{lastPlanId}}",
-                                "disable"
-                            ]
+                            "raw": "{{baseUrl}}/api/offices/admin/plans/{{planId}}/disable",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "plans", "{{planId}}", "disable"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Crear Bloqueo de Horario (Mantenimiento)",
+                    "name": "Crear Bloqueo",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if(jsonData.data && jsonData.data.id) {",
+                                    "    pm.collectionVariables.set('blockId', jsonData.data.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"officeId\": \"{{lastOfficeId}}\",\n    \"beginDate\": \"2026-06-01T09:00:00Z\",\n    \"endDate\": \"2026-06-01T12:00:00Z\",\n    \"reason\": \"Mantenimiento preventivo de aire acondicionado\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "raw": "{\n    \"officeId\": \"{{officeId}}\",\n    \"beginDate\": \"2026-06-01T09:00:00Z\",\n    \"endDate\": \"2026-06-01T12:00:00Z\",\n    \"reason\": \"Mantenimiento preventivo\"\n}",
+                            "options": { "raw": { "language": "json" } }
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/offices/admin/blocks",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "blocks"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "blocks"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Consultar Bloqueos de una Sala",
+                    "name": "Consultar Bloqueos",
                     "request": {
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/offices/admin/blocks/{{lastOfficeId}}",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "blocks",
-                                "{{lastOfficeId}}"
-                            ]
+                            "raw": "{{baseUrl}}/api/offices/admin/blocks/{{officeId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "blocks", "{{officeId}}"]
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
-                    "name": "Cancelar Bloqueo de Horario",
+                    "name": "Cancelar Bloqueo",
                     "request": {
                         "method": "PATCH",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/offices/admin/blocks/{{lastBlockId}}/cancel",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "blocks",
-                                "{{lastBlockId}}",
-                                "cancel"
-                            ]
+                            "raw": "{{baseUrl}}/api/offices/admin/blocks/{{blockId}}/cancel",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "offices", "admin", "blocks", "{{blockId}}", "cancel"]
                         }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Desactivar Espacio / Sala",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/offices/admin/{{lastOfficeId}}/disable",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "{{lastOfficeId}}",
-                                "disable"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Eliminar Espacio / Sala",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/offices/admin/{{lastOfficeId}}",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "offices",
-                                "admin",
-                                "{{lastOfficeId}}"
-                            ]
-                        }
-                    },
-                    "response": []
+                    }
                 }
             ]
         },
         {
-            "name": "4. Roles y Permisos (SuperAdmin)",
+            "name": "4. Roles y Permisos",
             "item": [
                 {
-                    "name": "Listar Todos los Roles",
+                    "name": "Listar Roles con Permisos",
                     "request": {
                         "method": "GET",
                         "header": [],
                         "url": {
                             "raw": "{{baseUrl}}/api/roles",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "roles"
-                            ]
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "roles"]
                         }
-                    },
-                    "response": []
+                    }
+                },
+                {
+                    "name": "Ver Permisos de un Rol",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/roles/{{roleId}}/permissions",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "roles", "{{roleId}}", "permissions"]
+                        }
+                    }
                 },
                 {
                     "name": "Modificar Permisos de un Rol",
@@ -590,66 +417,322 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"permissionIds\": [\n        \"b0000000-0000-0000-0000-000000000001\",\n        \"b0000000-0000-0000-0000-000000000002\"\n    ]\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "raw": "{\n    \"permissionIds\": [\n        \"b0000000-0000-0000-0000-000000000001\",\n        \"b0000000-0000-0000-0000-000000000002\",\n        \"b0000000-0000-0000-0000-000000000003\"\n    ]\n}",
+                            "options": { "raw": { "language": "json" } }
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/roles/a0000000-0000-0000-0000-000000000002/permissions",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "roles",
-                                "a0000000-0000-0000-0000-000000000002",
-                                "permissions"
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "roles", "a0000000-0000-0000-0000-000000000002", "permissions"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "5. Reservas (Cliente)",
+            "item": [
+                {
+                    "name": "Cotizar Reserva",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/quote?planId={{planId}}&beginDate=2026-06-10T09:00:00Z&endDate=2026-06-10T13:00:00Z",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "quote"],
+                            "query": [
+                                { "key": "planId", "value": "{{planId}}" },
+                                { "key": "beginDate", "value": "2026-06-10T09:00:00Z" },
+                                { "key": "endDate", "value": "2026-06-10T13:00:00Z" }
                             ]
                         }
-                    },
-                    "response": []
+                    }
+                },
+                {
+                    "name": "Crear Pre-reserva",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if(jsonData.data && jsonData.data.id) {",
+                                    "    pm.collectionVariables.set('reservationId', jsonData.data.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"officeId\": \"{{officeId}}\",\n    \"officePlanId\": \"{{planId}}\",\n    \"beginDate\": \"2026-06-10T09:00:00Z\",\n    \"endDate\": \"2026-06-10T13:00:00Z\",\n    \"personAmount\": 5,\n    \"usesParking\": true,\n    \"representativeName\": \"Juan\",\n    \"representativeLastName\": \"Pérez\",\n    \"representativeDni\": \"12345678\",\n    \"guests\": [\n        {\"name\": \"Carlos\", \"lastName\": \"López\", \"dni\": \"87654321\"},\n        {\"name\": \"María\", \"lastName\": \"García\", \"dni\": \"11223344\"}\n    ],\n    \"vehiclePlates\": [\"ABC-123\"]\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations"]
+                        }
+                    }
+                },
+                {
+                    "name": "Crear Pre-reserva (Sin invitados)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if(jsonData.data && jsonData.data.id) {",
+                                    "    pm.collectionVariables.set('reservationId', jsonData.data.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"officeId\": \"{{officeId}}\",\n    \"officePlanId\": \"{{planId}}\",\n    \"beginDate\": \"2026-06-11T09:00:00Z\",\n    \"endDate\": \"2026-06-11T13:00:00Z\",\n    \"personAmount\": 3,\n    \"usesParking\": false,\n    \"representativeName\": \"Juan\",\n    \"representativeLastName\": \"Pérez\",\n    \"representativeDni\": \"12345678\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations"]
+                        }
+                    }
+                },
+                {
+                    "name": "Confirmar Pago",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"reservationId\": \"{{reservationId}}\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/confirm-payment",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "confirm-payment"]
+                        }
+                    }
+                },
+                {
+                    "name": "Cancelar Mi Reserva",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/{{reservationId}}/cancel",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "{{reservationId}}", "cancel"]
+                        }
+                    }
+                },
+                {
+                    "name": "Mis Reservas",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/my",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "my"]
+                        }
+                    }
+                },
+                {
+                    "name": "Mi Borrador Pendiente",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/my/pending",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "my", "pending"]
+                        }
+                    }
+                },
+                {
+                    "name": "Solicitar Reprogramación",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if(jsonData.data && jsonData.data.id) {",
+                                    "    pm.collectionVariables.set('rescheduleId', jsonData.data.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"reservationId\": \"{{reservationId}}\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/reschedule",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "reschedule"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "6. Reservas (Admin)",
+            "item": [
+                {
+                    "name": "Crear Reserva Manual",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if(jsonData.data && jsonData.data.id) {",
+                                    "    pm.collectionVariables.set('adminReservationId', jsonData.data.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"officeId\": \"{{officeId}}\",\n    \"beginDate\": \"2026-06-15T09:00:00Z\",\n    \"endDate\": \"2026-06-15T13:00:00Z\",\n    \"personAmount\": 5,\n    \"representativeName\": \"Admin\",\n    \"representativeLastName\": \"Test\",\n    \"representativeDni\": \"99887766\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/admin",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "admin"]
+                        }
+                    }
+                },
+                {
+                    "name": "Cancelar Reserva (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/admin/{{reservationId}}/cancel",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "admin", "{{reservationId}}", "cancel"]
+                        }
+                    }
+                },
+                {
+                    "name": "Ver Todas las Reservas",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/admin/all",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "admin", "all"]
+                        }
+                    }
+                },
+                {
+                    "name": "Reservas de un Usuario",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/admin/user/{{userId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "admin", "user", "{{userId}}"]
+                        }
+                    }
+                },
+                {
+                    "name": "Listar Solicitudes de Reprogramación",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/reschedule/admin/all",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "reschedule", "admin", "all"]
+                        }
+                    }
+                },
+                {
+                    "name": "Aprobar Reprogramación",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"rescheduleRequestId\": \"{{rescheduleId}}\",\n    \"approved\": true,\n    \"newBeginDate\": \"2026-06-20T09:00:00Z\",\n    \"newEndDate\": \"2026-06-20T13:00:00Z\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/reschedule/admin/process",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "reschedule", "admin", "process"]
+                        }
+                    }
+                },
+                {
+                    "name": "Rechazar Reprogramación",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"rescheduleRequestId\": \"{{rescheduleId}}\",\n    \"approved\": false\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/reservations/reschedule/admin/process",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "reservations", "reschedule", "admin", "process"]
+                        }
+                    }
                 }
             ]
         }
     ],
     "auth": {
         "type": "bearer",
-        "bearer": [
-            {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "string"
-            }
-        ]
+        "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
     },
     "variable": [
-        {
-            "key": "baseUrl",
-            "value": "http://localhost:8080",
-            "type": "string"
-        },
-        {
-            "key": "token",
-            "value": "",
-            "type": "string"
-        },
-        {
-            "key": "lastOfficeId",
-            "value": "cambiar-por-uuid-de-respuesta",
-            "type": "string"
-        },
-        {
-            "key": "lastPlanId",
-            "value": "cambiar-por-uuid-de-respuesta",
-            "type": "string"
-        },
-        {
-            "key": "lastBlockId",
-            "value": "cambiar-por-uuid-de-respuesta",
-            "type": "string"
-        }
+        { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+        { "key": "token", "value": "", "type": "string" },
+        { "key": "userId", "value": "", "type": "string" },
+        { "key": "verifyToken", "value": "", "type": "string" },
+        { "key": "resetToken", "value": "", "type": "string" },
+        { "key": "officeKindId", "value": "", "type": "string" },
+        { "key": "officeId", "value": "", "type": "string" },
+        { "key": "planId", "value": "", "type": "string" },
+        { "key": "blockId", "value": "", "type": "string" },
+        { "key": "roleId", "value": "a0000000-0000-0000-0000-000000000002", "type": "string" },
+        { "key": "reservationId", "value": "", "type": "string" },
+        { "key": "adminReservationId", "value": "", "type": "string" },
+        { "key": "rescheduleId", "value": "", "type": "string" }
     ]
 }
