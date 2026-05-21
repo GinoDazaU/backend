@@ -1,0 +1,655 @@
+{
+    "info": {
+        "_postman_id": "8c5b8e92-e421-4f15-9c98-12ba5c8aef9d",
+        "name": "Workpool API - Autenticación y Espacios",
+        "description": "Colección de Postman para el backend de Workpool que cubre todo el ciclo de Autenticación, Gestión de Espacios, Planes de Precios, Bloqueos y Permisos Dinámicos.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "1. Autenticación",
+            "item": [
+                {
+                    "name": "Registrar Usuario",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"firstName\": \"Gino\",\n    \"lastName\": \"Daza\",\n    \"email\": \"gino.test@gmail.com\",\n    \"phoneNumber\": \"987654321\",\n    \"dni\": \"12345678\",\n    \"birthDate\": \"1995-06-15\",\n    \"password\": \"Password1234\",\n    \"confirmPassword\": \"Password1234\",\n    \"termsAccepted\": true\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Verificar Correo",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/verify-email?token=AQUÍ_VA_EL_UUID_DE_LA_BD",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "verify-email"
+                            ],
+                            "query": [
+                                {
+                                    "key": "token",
+                                    "value": "AQUÍ_VA_EL_UUID_DE_LA_BD",
+                                    "description": "Token copiado directo de tu base de datos o consola para simular la verificación."
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Iniciar Sesión (Login)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Login Exitoso\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.success).to.eql(true);",
+                                    "    if(jsonData.data && jsonData.data.token) {",
+                                    "        pm.environment.set(\"token\", jsonData.data.token);",
+                                    "        console.log(\"Token guardado automáticamente en el entorno.\");",
+                                    "    }",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"gino.test@gmail.com\",\n    \"password\": \"Password1234\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Olvidé mi Contraseña",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"gino.test@gmail.com\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/forgot-password",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "forgot-password"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Restablecer Contraseña",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"token\": \"AQUÍ_VA_EL_TOKEN_RESET_DE_BD\",\n    \"password\": \"NewPassword1234\",\n    \"confirmPassword\": \"NewPassword1234\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/reset-password",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "reset-password"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "2. Espacios (Catálogo Público)",
+            "item": [
+                {
+                    "name": "Listar Tipos de Sala (Kinds)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/kinds",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "kinds"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Buscar Salas Disponibles con Filtros",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/available?kindId=a0000000-0000-0000-0000-000000000001&minCapacity=5",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "available"
+                            ],
+                            "query": [
+                                {
+                                    "key": "kindId",
+                                    "value": "a0000000-0000-0000-0000-000000000001",
+                                    "description": "ID del tipo de oficina mapeado."
+                                },
+                                {
+                                    "key": "minCapacity",
+                                    "value": "5",
+                                    "description": "Aforo mínimo requerido."
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Obtener Detalle de Sala por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/{{lastOfficeId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "{{lastOfficeId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Obtener Planes de Precios por Tipo",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/plans?kindId=a0000000-0000-0000-0000-000000000001",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "plans"
+                            ],
+                            "query": [
+                                {
+                                    "key": "kindId",
+                                    "value": "a0000000-0000-0000-0000-000000000001"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "3. Espacios (Administración)",
+            "item": [
+                {
+                    "name": "Crear Espacio / Sala",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Sala Creativa Beta\",\n    \"description\": \"Sala equipada con pizarra inteligente y proyector.\",\n    \"capacity\": 8,\n    \"officeKindId\": \"a0000000-0000-0000-0000-000000000001\",\n    \"conditions\": \"No se permiten alimentos dentro de la sala.\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Actualizar Espacio / Sala",
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Sala Creativa Beta v2\",\n    \"description\": \"Sala optimizada con aire acondicionado.\",\n    \"capacity\": 10,\n    \"officeKindId\": \"a0000000-0000-0000-0000-000000000001\",\n    \"conditions\": \"Uso exclusivo con reserva confirmada.\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/{{lastOfficeId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "{{lastOfficeId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Listar Todos los Espacios (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/all",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "all"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Crear Plan de Precios",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"officeKindId\": \"a0000000-0000-0000-0000-000000000001\",\n    \"pricePerHour\": 35.00,\n    \"planDurationHours\": 4\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/plans",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "plans"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Actualizar Plan de Precios",
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"officeKindId\": \"a0000000-0000-0000-0000-000000000001\",\n    \"pricePerHour\": 40.00,\n    \"planDurationHours\": 4\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/plans/{{lastPlanId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "plans",
+                                "{{lastPlanId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Listar Todos los Planes (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/plans",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "plans"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Desactivar Plan de Precios",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/plans/{{lastPlanId}}/disable",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "plans",
+                                "{{lastPlanId}}",
+                                "disable"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Crear Bloqueo de Horario (Mantenimiento)",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"officeId\": \"{{lastOfficeId}}\",\n    \"beginDate\": \"2026-06-01T09:00:00Z\",\n    \"endDate\": \"2026-06-01T12:00:00Z\",\n    \"reason\": \"Mantenimiento preventivo de aire acondicionado\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/blocks",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "blocks"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Consultar Bloqueos de una Sala",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/blocks/{{lastOfficeId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "blocks",
+                                "{{lastOfficeId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cancelar Bloqueo de Horario",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/blocks/{{lastBlockId}}/cancel",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "blocks",
+                                "{{lastBlockId}}",
+                                "cancel"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Desactivar Espacio / Sala",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/{{lastOfficeId}}/disable",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "{{lastOfficeId}}",
+                                "disable"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Eliminar Espacio / Sala",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/offices/admin/{{lastOfficeId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "offices",
+                                "admin",
+                                "{{lastOfficeId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "4. Roles y Permisos (SuperAdmin)",
+            "item": [
+                {
+                    "name": "Listar Todos los Roles",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/roles",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "roles"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Modificar Permisos de un Rol",
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"permissionIds\": [\n        \"b0000000-0000-0000-0000-000000000001\",\n        \"b0000000-0000-0000-0000-000000000002\"\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/roles/a0000000-0000-0000-0000-000000000002/permissions",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "roles",
+                                "a0000000-0000-0000-0000-000000000002",
+                                "permissions"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8080",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "lastOfficeId",
+            "value": "cambiar-por-uuid-de-respuesta",
+            "type": "string"
+        },
+        {
+            "key": "lastPlanId",
+            "value": "cambiar-por-uuid-de-respuesta",
+            "type": "string"
+        },
+        {
+            "key": "lastBlockId",
+            "value": "cambiar-por-uuid-de-respuesta",
+            "type": "string"
+        }
+    ]
+}
