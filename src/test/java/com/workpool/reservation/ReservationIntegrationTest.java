@@ -78,8 +78,6 @@ class ReservationIntegrationTest {
         officeRepository.deleteAll();
         officeKindRepository.deleteAll();
         userRepository.deleteAll();
-        roleRepository.deleteAll();
-        permissionRepository.deleteAll();
 
         // Permisos
         Permission verEspacios = savePerm("VER_ESPACIOS");
@@ -152,8 +150,6 @@ class ReservationIntegrationTest {
         officeRepository.deleteAll();
         officeKindRepository.deleteAll();
         userRepository.deleteAll();
-        roleRepository.deleteAll();
-        permissionRepository.deleteAll();
     }
 
     // ===== COTIZACIÓN =====
@@ -775,18 +771,30 @@ class ReservationIntegrationTest {
     // ===== HELPERS =====
 
     private Permission savePerm(String name) {
-        Permission p = new Permission();
-        p.setPermissionName(name);
-        p.setEnabled(true);
-        return permissionRepository.save(p);
+        return permissionRepository.findAll().stream()
+                .filter(p -> p.getPermissionName().equals(name))
+                .findFirst()
+                .orElseGet(() -> {
+                    Permission p = new Permission();
+                    p.setPermissionName(name);
+                    p.setEnabled(true);
+                    return permissionRepository.save(p);
+                });
     }
 
     private Role saveRole(String name, Set<Permission> perms) {
-        Role r = new Role();
-        r.setRoleName(name);
-        r.setEnabled(true);
-        r.setPermissions(perms);
-        return roleRepository.save(r);
+        return roleRepository.findByRoleName(name)
+                .map(existing -> {
+                    existing.setPermissions(perms);
+                    return roleRepository.save(existing);
+                })
+                .orElseGet(() -> {
+                    Role r = new Role();
+                    r.setRoleName(name);
+                    r.setEnabled(true);
+                    r.setPermissions(perms);
+                    return roleRepository.save(r);
+                });
     }
 
     private void createUser(String email, Role role) {
