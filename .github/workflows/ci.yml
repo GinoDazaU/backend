@@ -16,7 +16,7 @@ jobs:
       postgres:
         image: postgres:18
         env:
-          POSTGRES_DB: workpool
+          POSTGRES_DB: workpool_db_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
