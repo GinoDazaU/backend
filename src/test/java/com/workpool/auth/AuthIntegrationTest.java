@@ -429,6 +429,39 @@ class AuthIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    @Order(31)
+    void login_failedAttemptsReset_afterTimeWindow() throws Exception {
+        String email = "resettime@workpool.com";
+        createVerifiedUser(email);
+
+        for (int i = 0; i < 4; i++) {
+            mockMvc.perform(post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("{\"email\": \"%s\", \"password\": \"WrongPass1\"}", email)));
+        }
+
+        User dbUser = userRepository.findByEmail(email).orElseThrow();
+        dbUser.setFailedAttempts(4);
+        dbUser.setLastFailedAt(OffsetDateTime.now().minusMinutes(20));
+        userRepository.save(dbUser);
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("{\"email\": \"%s\", \"password\": \"WrongPass1\"}", email)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Correo o contraseña incorrectos"));
+
+        User updatedUser = userRepository.findByEmail(email).orElseThrow();
+        Assertions.assertEquals(1, updatedUser.getFailedAttempts());
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("{\"email\": \"%s\", \"password\": \"Test1234\"}", email)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.token").exists());
+    }
+
     // ===== HELPERS =====
 
     private String registerJson(String email, String pass, String confirm, boolean terms) {

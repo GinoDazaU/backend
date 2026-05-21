@@ -33,7 +33,8 @@ CREATE TABLE users (
                        locked_until    TIMESTAMPTZ,
                        is_enabled      BOOLEAN NOT NULL DEFAULT true,
                        created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
-                       updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+                       updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+                       last_failed_at  TIMESTAMPTZ
 );
 
 CREATE TABLE verification_tokens (

@@ -61,6 +61,9 @@ public class User implements UserDetails {
     @Column(name = "locked_until")
     private OffsetDateTime lockedUntil;
 
+    @Column(name = "last_failed_at")
+    private OffsetDateTime lastFailedAt;
+
     @PrePersist
     protected void onCreate() {
         createdAt = OffsetDateTime.now();
