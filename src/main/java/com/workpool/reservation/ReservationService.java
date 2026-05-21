@@ -120,7 +120,6 @@ public class ReservationService {
         }
 
         if (reservation.isExpired()) {
-            expireReservation(reservation);
             throw new AppException(HttpStatus.BAD_REQUEST,
                     "La pre-reserva ha expirado. Debes iniciar un nuevo proceso de reserva.");
         }
