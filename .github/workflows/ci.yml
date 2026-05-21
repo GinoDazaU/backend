@@ -40,3 +40,7 @@ jobs:
 
       - name: Compile and Run All Tests
         run: mvn clean verify
+
+      - name: Ver errores de tests
+        if: failure()
+        run: cat target/surefire-reports/com.workpool.reservation.ReservationIntegrationTest.txt
