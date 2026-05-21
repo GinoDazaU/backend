@@ -103,6 +103,9 @@ public class Reservation {
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
 
+    @Column(name = "active_slot", nullable = false)
+    private boolean activeSlot = true;
+
     @PrePersist
     protected void onCreate() {
         createdAt = OffsetDateTime.now();

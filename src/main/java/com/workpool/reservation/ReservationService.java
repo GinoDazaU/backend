@@ -84,7 +84,11 @@ public class ReservationService {
         reservation.setCreatedByAdmin(false);
         reservation.setExpiresAt(OffsetDateTime.now().plusMinutes(PRE_RESERVATION_MINUTES));
 
-        reservationRepository.save(reservation);
+        try {
+            reservationRepository.save(reservation);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            throw new AppException(HttpStatus.CONFLICT, "El horario seleccionado no está disponible");
+        }
 
         // invitados
         if (request.getGuests() != null && !request.getGuests().isEmpty()) {
@@ -103,9 +107,10 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse confirmPayment(UUID reservationId, String userEmail) {
-        Reservation reservation = findReservationById(reservationId);
+        // lock pesimista sobre la reserva específica
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Reserva no encontrada"));
 
-        // verificar que pertenece al usuario
         if (!reservation.getUser().getEmail().equals(userEmail)) {
             throw new AppException(HttpStatus.FORBIDDEN, "No tienes acceso a esta reserva");
         }
@@ -114,14 +119,12 @@ public class ReservationService {
             throw new AppException(HttpStatus.BAD_REQUEST, "La reserva no está en estado pendiente");
         }
 
-        // RN-002: verificar que no expiró
         if (reservation.isExpired()) {
             expireReservation(reservation);
             throw new AppException(HttpStatus.BAD_REQUEST,
                     "La pre-reserva ha expirado. Debes iniciar un nuevo proceso de reserva.");
         }
 
-        // procesar pago
         String description = String.format("Reserva %s - %s",
                 reservation.getOffice().getName(), reservation.getId().toString().substring(0, 8));
 
@@ -133,19 +136,16 @@ public class ReservationService {
         );
 
         if (!"SUCCESS".equals(payment.getStatus())) {
-            // RN-058: permitir reintento, no expirar
             throw new AppException(HttpStatus.BAD_GATEWAY,
                     "El pago no pudo procesarse. Puedes intentarlo nuevamente mientras la pre-reserva esté vigente.");
         }
 
-        // RN-094: confirmar solo con pago exitoso
         ReservationStatus confirmedStatus = findStatus("CONFIRMADA");
         reservation.setPayment(payment);
         reservation.setReservationStatus(confirmedStatus);
         reservation.setExpiresAt(null);
         reservationRepository.save(reservation);
 
-        // RN-087: notificar confirmación
         reservationEmailService.sendStatusChangeEmail(reservation);
 
         return ReservationResponse.from(reservation);
@@ -216,6 +216,7 @@ public class ReservationService {
         ReservationStatus cancelledStatus = findStatus("CANCELADA");
         reservation.setReservationStatus(cancelledStatus);
         reservation.setExpiresAt(null);
+        reservation.setActiveSlot(false);
         reservationRepository.save(reservation);
 
         // RN-087: notificar cancelación
@@ -290,6 +291,7 @@ public class ReservationService {
 
         for (Reservation r : expired) {
             r.setReservationStatus(expiredStatus);
+            r.setActiveSlot(false);
             reservationRepository.save(r);
             reservationEmailService.sendStatusChangeEmail(r);
         }
@@ -379,6 +381,7 @@ public class ReservationService {
     private void expireReservation(Reservation reservation) {
         ReservationStatus expiredStatus = findStatus("EXPIRADA");
         reservation.setReservationStatus(expiredStatus);
+        reservation.setActiveSlot(false);
         reservationRepository.save(reservation);
         reservationEmailService.sendStatusChangeEmail(reservation);
     }

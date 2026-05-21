@@ -46,4 +46,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Error interno del servidor"));
     }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrity(
+            org.springframework.dao.DataIntegrityViolationException ex) {
+        if (ex.getMessage() != null && ex.getMessage().contains("no_overlapping")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.error("El horario seleccionado no está disponible"));
+        }
+        if (ex.getMessage() != null && ex.getMessage().contains("no_overlapping_blocks")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.error("Ya existe un bloqueo en el rango horario seleccionado"));
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error("Conflicto de datos: operación no permitida"));
+    }
+
+    @ExceptionHandler(org.springframework.dao.CannotAcquireLockException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDeadlock(
+            org.springframework.dao.CannotAcquireLockException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error("El horario seleccionado no está disponible"));
+    }
 }
