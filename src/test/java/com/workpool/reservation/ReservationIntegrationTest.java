@@ -737,11 +737,10 @@ class ReservationIntegrationTest {
 
     @Test @Order(80)
     void scheduler_expiresOldPreReservations() throws Exception {
-        // crear reserva y forzar expiración
         MvcResult r = mockMvc.perform(post("/api/reservations")
                         .header("Authorization", "Bearer " + cliente2Token)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(reservationJson(officeId, planId, 22, 9, 13, 3)))
+                        .content(reservationJson(officeId, planId, 45, 9, 13, 3)))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -752,18 +751,12 @@ class ReservationIntegrationTest {
         res.setExpiresAt(OffsetDateTime.now().minusMinutes(1));
         reservationRepository.save(res);
 
-        // ejecutar scheduler manualmente
-        ReservationService service = new ReservationService(
-                reservationRepository, reservationStatusRepository, guestRepository,
-                vehicleRepository, officeRepository, officePlanRepository,
-                officeBlockRepository, userRepository, null, null);
-
-        // usamos el service inyectado directamente
         int expired = reservationService.expireOldPreReservations();
         Assertions.assertTrue(expired >= 1);
 
         Reservation after = reservationRepository.findById(expId).orElseThrow();
         Assertions.assertEquals("EXPIRADA", after.getReservationStatus().getStatusName());
+        Assertions.assertFalse(after.isActiveSlot());
     }
 
     @Autowired private ReservationService reservationService;
