@@ -39,7 +39,7 @@ jobs:
           cache: maven
 
       - name: Compile and Run All Tests
-        run: mvn clean verify
+        run: mvn clean verify -e -Dsurefire.useFile=false
 
       - name: Ver errores de tests
         if: failure()
