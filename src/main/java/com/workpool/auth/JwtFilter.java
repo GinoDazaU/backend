@@ -47,7 +47,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (user != null && jwtService.isTokenValid(token, user)) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
-                                    user,
+                                    user.getEmail(),
                                     null,
                                     user.getAuthorities()
                             );
@@ -56,7 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // token inválido o expirado, continúa sin autenticar
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
